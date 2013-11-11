@@ -47,6 +47,29 @@ def get_text(workid):
     ## print("[[[END TEXT]]]")
     return text
 
+def set_of_named_entities(tagged_sentences):
+    """ """
+    out = set()
+    entities = []
+    for ts in tagged_sentences:
+        entity = ()
+        entity_tag = None
+        for tok,tag in ts:
+            if tag != entity_tag:
+                if entity_tag:
+                    entities.append((entity_tag, entity))
+                entity = ()
+                entity_tag = None
+            if tag != 'O':
+                entity = entity + (tok,)
+                entity_tag = tag
+            else:
+                entity = []
+                entity_tag = None
+        if entity_tag:
+            entities.append((entity_tag, entity))
+    return set(entities)
+
 def get_argparser():
     """Build the argument parser for main."""
     parser = argparse.ArgumentParser(description='remix')
@@ -66,9 +89,6 @@ def main():
     tokenized_sentences = [nltk.word_tokenize(s) for s in sentences]
 
     tagged_sentences = ner.batch_tag(tokenized_sentences)
-    for ts in tagged_sentences:
-        for (tok,tag) in ts:
-            if tag != 'O': ## letter 'O' not number 0
-                print(tok, tag)
+    print(set_of_named_entities(tagged_sentences))
 
 if __name__ == "__main__": main()
